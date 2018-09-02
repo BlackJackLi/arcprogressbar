@@ -40,7 +40,7 @@ public class ArcProgressBar extends ProgressBar {
 	private int rotate = 0;
 	private int blockCount = 36;
 
-	private float radius;
+	private float radius=400;
 
 	private float blockDegree;
 	private Paint blockPaint;
@@ -53,6 +53,7 @@ public class ArcProgressBar extends ProgressBar {
 	private int dx;
 	private int dy;
 
+	private boolean isCircle = false;
 
 	public ArcProgressBar(Context context) {
 		super(context);
@@ -84,7 +85,7 @@ public class ArcProgressBar extends ProgressBar {
 	}
 
 	@Override
-	protected synchronized void onDraw(Canvas canvas) {
+	protected void onDraw(Canvas canvas) {
 		canvas.save();
 		canvas.translate(dx, dy);
 		canvas.rotate(180);//为了从左到右旋转,默认旋转180度
@@ -106,9 +107,16 @@ public class ArcProgressBar extends ProgressBar {
 			}
 		}
 		blockPaint.setColor(splitColor);
-		for (; i <= blockCount; i++) {
-			canvas.drawLine(radius - splitWidth, 0, radius, 0, blockPaint);
-			canvas.rotate(blockDegree);
+		if (isCircle) {
+			for (; i < blockCount; i++) {
+				canvas.drawLine(radius - splitWidth, 0, radius, 0, blockPaint);
+				canvas.rotate(blockDegree);
+			}
+		} else {
+			for (; i <= blockCount; i++) {
+				canvas.drawLine(radius - splitWidth, 0, radius, 0, blockPaint);
+				canvas.rotate(blockDegree);
+			}
 		}
 
 		canvas.restore();
@@ -171,6 +179,7 @@ public class ArcProgressBar extends ProgressBar {
 		bundle.putInt("rotate", rotate);
 		bundle.putInt("blockCount", blockCount);
 		bundle.putFloat("radius", radius);
+		bundle.putBoolean("isCircle", isCircle);
 
 		return bundle;
 	}
@@ -197,6 +206,7 @@ public class ArcProgressBar extends ProgressBar {
 		rotate = bundle.getInt("rotate", 0);
 		blockCount = bundle.getInt("blockCount", 36);
 		radius = bundle.getFloat("radius", dpToPx(200));
+		isCircle = bundle.getBoolean("isCircle");
 	}
 
 	@Override
@@ -215,6 +225,9 @@ public class ArcProgressBar extends ProgressBar {
 					int attr = mAttrs.getIndex(i);
 					if (attr == R.styleable.ArcProgressBar_arc_progress_bar_degree) {
 						degree = mAttrs.getInt(R.styleable.ArcProgressBar_arc_progress_bar_degree, 180);
+						if (degree >= 360) {
+							isCircle = true;
+						}
 					} else if (attr == R.styleable.ArcProgressBar_arc_progress_bar_finger) {
 						fingerSrc = mAttrs.getResourceId(R.styleable.ArcProgressBar_arc_progress_bar_finger, -1);
 					} else if (attr == R.styleable.ArcProgressBar_arc_progress_bar_finger_width) {
