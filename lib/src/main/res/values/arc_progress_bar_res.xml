@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ArcProgressBar">
+        <attr name="arc_progress_bar_split_width" format="dimension"/>
+        <attr name="arc_progress_bar_split_height" format="dimension"/>
+        <attr name="arc_progress_bar_split_color" format="color"/>
+        <attr name="arc_progress_bar_split_progress_color" format="color"/>
+        <attr name="arc_progress_bar_edge_width" format="dimension"/>
+        <attr name="arc_progress_bar_edge_color" format="color"/>
+        <attr name="arc_progress_bar_edge_margin" format="dimension"/>
+        <attr name="arc_progress_bar_finger" format="reference"/>
+        <attr name="arc_progress_bar_finger_width" format="dimension"/>
+        <attr name="arc_progress_bar_finger_height" format="dimension"/>
+        <attr name="arc_progress_bar_finger_margin" format="dimension"/>
+        <attr name="arc_progress_bar_finger_rotate" format="float"/>
+        <attr name="arc_progress_bar_degree" format="integer"/>
+        <attr name="arc_progress_bar_rotate" format="integer"/>
+        <attr name="arc_progress_bar_block_count" format="integer"/>
+        <attr name="arc_progress_bar_radius" format="dimension"/>
+    </declare-styleable>
+
+    <style name="ArcProgressBarStyle">
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:indeterminate">false</item>
+    </style>
+
+</resources>
