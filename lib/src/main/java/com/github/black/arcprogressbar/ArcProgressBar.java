@@ -31,7 +31,7 @@ public class ArcProgressBar extends ProgressBar {
 	private float splitWidth = dpToPx(40);
 	private float splitHeight = dpToPx(6);
 	private int splitColor = getResources().getColor(R.color.white);
-	private int splitProgressColor = getResources().getColor(R.color.grade_green);
+	private int splitProgressColor = getResources().getColor(R.color.light_green);
 
 	private float edgeWidth = 0;
 	private int edgeColor = getResources().getColor(R.color.white);
@@ -40,7 +40,7 @@ public class ArcProgressBar extends ProgressBar {
 	private int rotate = 0;
 	private int blockCount = 36;
 
-	private float radius=400;
+	private float radius = 400;
 
 	private float blockDegree;
 	private Paint blockPaint;
@@ -199,9 +199,9 @@ public class ArcProgressBar extends ProgressBar {
 		splitWidth = bundle.getFloat("splitWidth", 40);
 		splitHeight = bundle.getFloat("splitHeight", 6);
 		splitColor = bundle.getInt("splitColor", getResources().getColor(R.color.white));
-		splitProgressColor = bundle.getInt("splitProgressColor", getResources().getColor(R.color.grade_green));
+		splitProgressColor = bundle.getInt("splitProgressColor", getResources().getColor(R.color.light_green));
 		edgeWidth = bundle.getFloat("edgeWidth", 0);
-		edgeColor = bundle.getInt("edgeColor", getResources().getColor(R.color.grade_green));
+		edgeColor = bundle.getInt("edgeColor", getResources().getColor(R.color.light_green));
 		edgeMargin = bundle.getFloat("edgeMargin", 0);
 		rotate = bundle.getInt("rotate", 0);
 		blockCount = bundle.getInt("blockCount", 36);
@@ -246,7 +246,7 @@ public class ArcProgressBar extends ProgressBar {
 						splitColor = mAttrs.getColor(R.styleable.ArcProgressBar_arc_progress_bar_split_color, getResources().getColor(R.color.white));
 					} else if (attr == R.styleable.ArcProgressBar_arc_progress_bar_split_progress_color) {
 						splitProgressColor = mAttrs.getColor(R.styleable.ArcProgressBar_arc_progress_bar_split_progress_color, getResources().getColor(R.color
-								.grade_green));
+								.light_green));
 					} else if (attr == R.styleable.ArcProgressBar_arc_progress_bar_edge_width) {
 						edgeWidth = mAttrs.getDimension(R.styleable.ArcProgressBar_arc_progress_bar_edge_width, 0);
 					} else if (attr == R.styleable.ArcProgressBar_arc_progress_bar_edge_color) {
