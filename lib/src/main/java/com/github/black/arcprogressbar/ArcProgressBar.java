@@ -10,7 +10,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Build;
-import android.os.Bundle;
+import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -18,6 +18,8 @@ import android.widget.ProgressBar;
 
 
 public class ArcProgressBar extends ProgressBar {
+
+	private final String TAG = getClass().getSimpleName();
 
 	private float border = dpToPx(4);
 
@@ -43,7 +45,7 @@ public class ArcProgressBar extends ProgressBar {
 	private float radius = 400;
 
 	private float blockDegree;
-	private Paint blockPaint;
+	private Paint splitPaint;
 	private Bitmap fingerBitmap;
 
 	private RectF edgeRetF;
@@ -97,24 +99,24 @@ public class ArcProgressBar extends ProgressBar {
 		}
 
 		int target = (int) (getProgress() * 1.0 / getMax() * blockCount);
-		blockPaint.setColor(splitProgressColor);
+		splitPaint.setColor(splitProgressColor);
 		int i = 0;
 
 		if (getProgress() > 0) {
 			for (; i <= target; i++) {
-				canvas.drawLine(radius - splitWidth, 0, radius, 0, blockPaint);
+				canvas.drawLine(radius - splitWidth, 0, radius, 0, splitPaint);
 				canvas.rotate(blockDegree);
 			}
 		}
-		blockPaint.setColor(splitColor);
+		splitPaint.setColor(splitColor);
 		if (isCircle) {
 			for (; i < blockCount; i++) {
-				canvas.drawLine(radius - splitWidth, 0, radius, 0, blockPaint);
+				canvas.drawLine(radius - splitWidth, 0, radius, 0, splitPaint);
 				canvas.rotate(blockDegree);
 			}
 		} else {
 			for (; i <= blockCount; i++) {
-				canvas.drawLine(radius - splitWidth, 0, radius, 0, blockPaint);
+				canvas.drawLine(radius - splitWidth, 0, radius, 0, splitPaint);
 				canvas.rotate(blockDegree);
 			}
 		}
@@ -148,7 +150,7 @@ public class ArcProgressBar extends ProgressBar {
 
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-		initProgressBar();
+		initCenter();
 	}
 
 	@Override
@@ -158,55 +160,53 @@ public class ArcProgressBar extends ProgressBar {
 
 	@Override
 	public Parcelable onSaveInstanceState() {
-		Bundle bundle = new Bundle();
-		Parcelable arg = super.onSaveInstanceState();
-
-		bundle.putParcelable("arg", arg);
-
-		bundle.putInt("degree", degree);
-		bundle.putInt("fingerSrc", fingerSrc);
-		bundle.putFloat("splitWidth", splitWidth);
-		bundle.putFloat("splitHeight", splitHeight);
-		bundle.putFloat("fingerWidth", fingerWidth);
-		bundle.putFloat("fingerHeight", fingerHeight);
-		bundle.putFloat("fingerMargin", fingerMargin);
-		bundle.putFloat("fingerRotate", fingerRotate);
-		bundle.putInt("splitColor", splitColor);
-		bundle.putInt("splitProgressColor", splitProgressColor);
-		bundle.putFloat("edgeWidth", edgeWidth);
-		bundle.putInt("edgeColor", edgeColor);
-		bundle.putFloat("edgeMargin", edgeMargin);
-		bundle.putInt("rotate", rotate);
-		bundle.putInt("blockCount", blockCount);
-		bundle.putFloat("radius", radius);
-		bundle.putBoolean("isCircle", isCircle);
-
-		return bundle;
+		Parcelable parcelable = super.onSaveInstanceState();
+		SavedState ss = new SavedState(parcelable);
+		ss.border = border;
+		ss.degree = degree;
+		ss.fingerSrc = fingerSrc;
+		ss.fingerWidth = fingerWidth;
+		ss.fingerHeight = fingerHeight;
+		ss.fingerMargin = fingerMargin;
+		ss.fingerRotate = fingerRotate;
+		ss.splitWidth = splitWidth;
+		ss.splitHeight = splitHeight;
+		ss.splitColor = splitColor;
+		ss.splitProgressColor = splitProgressColor;
+		ss.edgeWidth = edgeWidth;
+		ss.edgeColor = edgeColor;
+		ss.edgeMargin = edgeMargin;
+		ss.rotate = rotate;
+		ss.blockCount = blockCount;
+		ss.radius = radius;
+		return ss;
 	}
 
 	@Override
 	public void onRestoreInstanceState(Parcelable state) {
-		Bundle bundle = (Bundle) state;
-		Parcelable superState = ((Bundle) state).getParcelable("arg");
-		super.onRestoreInstanceState(superState);
-
-		degree = bundle.getInt("degree", 180);
-		fingerSrc = bundle.getInt("fingerSrc", -1);
-		fingerWidth = bundle.getFloat("fingerWidth", 0);
-		fingerHeight = bundle.getFloat("fingerHeight", 0);
-		fingerMargin = bundle.getFloat("fingerMargin", 0);
-		fingerRotate = bundle.getFloat("fingerRotate", 0);
-		splitWidth = bundle.getFloat("splitWidth", 40);
-		splitHeight = bundle.getFloat("splitHeight", 6);
-		splitColor = bundle.getInt("splitColor", getResources().getColor(R.color.white));
-		splitProgressColor = bundle.getInt("splitProgressColor", getResources().getColor(R.color.light_green));
-		edgeWidth = bundle.getFloat("edgeWidth", 0);
-		edgeColor = bundle.getInt("edgeColor", getResources().getColor(R.color.light_green));
-		edgeMargin = bundle.getFloat("edgeMargin", 0);
-		rotate = bundle.getInt("rotate", 0);
-		blockCount = bundle.getInt("blockCount", 36);
-		radius = bundle.getFloat("radius", dpToPx(200));
-		isCircle = bundle.getBoolean("isCircle");
+		SavedState ss = (SavedState) state;
+		super.onRestoreInstanceState(ss.getSuperState());
+		border = ss.border;
+		degree = ss.degree;
+		fingerSrc = ss.fingerSrc;
+		fingerWidth = ss.fingerWidth;
+		fingerHeight = ss.fingerHeight;
+		fingerMargin = ss.fingerMargin;
+		fingerRotate = ss.fingerRotate;
+		splitWidth = ss.splitWidth;
+		splitHeight = ss.splitHeight;
+		splitColor = ss.splitColor;
+		splitProgressColor = ss.splitProgressColor;
+		edgeWidth = ss.edgeWidth;
+		edgeColor = ss.edgeColor;
+		edgeMargin = ss.edgeMargin;
+		rotate = ss.rotate;
+		blockCount = ss.blockCount;
+		radius = ss.radius;
+		initBlock();
+		initSplit();
+		initFinger();
+		initEdge();
 	}
 
 	@Override
@@ -225,9 +225,6 @@ public class ArcProgressBar extends ProgressBar {
 					int attr = mAttrs.getIndex(i);
 					if (attr == R.styleable.ArcProgressBar_arc_progress_bar_degree) {
 						degree = mAttrs.getInt(R.styleable.ArcProgressBar_arc_progress_bar_degree, 180);
-						if (degree >= 360) {
-							isCircle = true;
-						}
 					} else if (attr == R.styleable.ArcProgressBar_arc_progress_bar_finger) {
 						fingerSrc = mAttrs.getResourceId(R.styleable.ArcProgressBar_arc_progress_bar_finger, -1);
 					} else if (attr == R.styleable.ArcProgressBar_arc_progress_bar_finger_width) {
@@ -264,18 +261,31 @@ public class ArcProgressBar extends ProgressBar {
 				mAttrs.recycle();
 			}
 		}
+		initBlock();
+		initSplit();
+		initFinger();
+		initEdge();
 	}
 
-	private void initProgressBar() {
+	private void initCenter() {
 		dx = (getMeasuredWidth() - getPaddingLeft() - getPaddingRight()) / 2 + getPaddingLeft();
 		dy = (getMeasuredHeight() - getPaddingTop() - getPaddingBottom()) / 2 + getPaddingTop();
+	}
 
-
+	private void initBlock() {
+		if (degree >= 360) {
+			isCircle = true;
+		}
 		blockDegree = (float) (degree * 1.0 / (blockCount));
-		blockPaint = new Paint();
-		blockPaint.setAntiAlias(true);
-		blockPaint.setStrokeWidth(splitHeight);
+	}
 
+	private void initSplit() {
+		splitPaint = new Paint();
+		splitPaint.setAntiAlias(true);
+		splitPaint.setStrokeWidth(splitHeight);
+	}
+
+	private void initFinger() {
 		if (fingerBitmap != null) {
 			fingerBitmap.recycle();
 		}
@@ -312,7 +322,9 @@ public class ArcProgressBar extends ProgressBar {
 				bmp.recycle();
 			}
 		}
+	}
 
+	private void initEdge() {
 		if (edgeWidth > 0) {
 			edgePaint = new Paint();
 			edgePaint.setStrokeWidth(edgeWidth);
@@ -325,10 +337,200 @@ public class ArcProgressBar extends ProgressBar {
 			edgeBuffer = (float) Math.toDegrees(Math.asin(splitHeight / 2 / radius));
 			edgeBuffer = (float) Math.toDegrees(Math.atan(splitHeight / 2 / radius));
 		}
+	}
 
+	public int getDegree() {
+		return degree;
+	}
+
+	public int getFingerSrc() {
+		return fingerSrc;
+	}
+
+	public float getFingerWidth() {
+		return fingerWidth;
+	}
+
+	public float getFingerHeight() {
+		return fingerHeight;
+	}
+
+
+	public float getFingerMargin() {
+		return fingerMargin;
+	}
+
+	public float getFingerRotate() {
+		return fingerRotate;
+	}
+
+	public float getSplitWidth() {
+		return splitWidth;
+	}
+
+	public float getSplitHeight() {
+		return splitHeight;
+	}
+
+	public int getSplitColor() {
+		return splitColor;
+	}
+
+	public void setSplitColor(int splitColor) {
+		this.splitColor = splitColor;
+		invalidate();
+	}
+
+	public int getSplitProgressColor() {
+		return splitProgressColor;
+	}
+
+	public void setSplitProgressColor(int splitProgressColor) {
+		this.splitProgressColor = splitProgressColor;
+		invalidate();
+	}
+
+	public float getEdgeWidth() {
+		return edgeWidth;
+	}
+
+	public int getEdgeColor() {
+		return edgeColor;
+	}
+
+	public void setEdgeColor(int edgeColor) {
+		this.edgeColor = edgeColor;
+		if (edgePaint == null) {
+			initEdge();
+		}else {
+			edgePaint.setColor(edgeColor);
+		}
+		invalidate();
+	}
+
+	public float getEdgeMargin() {
+		return edgeMargin;
+	}
+
+	public int getRotate() {
+		return rotate;
+	}
+
+	public void setRotate(int rotate) {
+		this.rotate = rotate;
+		invalidate();
+	}
+
+	public int getBlockCount() {
+		return blockCount;
+	}
+
+	public float getRadius() {
+		return radius;
+	}
+
+	public boolean isCircle() {
+		return isCircle;
 	}
 
 	private float dpToPx(float dpVal) {
 		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpVal, getResources().getDisplayMetrics());
+	}
+
+	private static class SavedState extends BaseSavedState {
+
+		private float border;
+		private int degree;
+		private int fingerSrc;
+		private float fingerWidth;
+		private float fingerHeight;
+		private float fingerMargin;
+		private float fingerRotate;
+		private float splitWidth;
+		private float splitHeight;
+		private int splitColor;
+		private int splitProgressColor;
+		private float edgeWidth;
+		private int edgeColor;
+		private float edgeMargin;
+		private int rotate;
+		private int blockCount;
+		private float radius;
+
+
+		/**
+		 * Constructor called from {@link #CREATOR}
+		 */
+		public SavedState(Parcel source) {
+			super(source);
+			readFromParcel(source);
+		}
+
+		/**
+		 * Constructor called from {@link ArcProgressBar#onSaveInstanceState()}
+		 */
+		public SavedState(Parcelable superState) {
+			super(superState);
+		}
+
+		@Override
+		public void writeToParcel(Parcel out, int flags) {
+			super.writeToParcel(out, flags);
+			out.writeFloat(border);
+			out.writeInt(degree);
+			out.writeInt(fingerSrc);
+			out.writeFloat(fingerWidth);
+			out.writeFloat(fingerHeight);
+			out.writeFloat(fingerMargin);
+			out.writeFloat(fingerRotate);
+			out.writeFloat(splitWidth);
+			out.writeFloat(splitHeight);
+			out.writeInt(splitColor);
+			out.writeInt(splitProgressColor);
+			out.writeFloat(edgeWidth);
+			out.writeInt(edgeColor);
+			out.writeFloat(edgeMargin);
+			out.writeInt(rotate);
+			out.writeInt(blockCount);
+			out.writeFloat(radius);
+		}
+
+		private void readFromParcel(Parcel in) {
+			border = in.readFloat();
+			degree = in.readInt();
+			fingerSrc = in.readInt();
+			fingerWidth = in.readFloat();
+			fingerHeight = in.readFloat();
+			fingerMargin = in.readFloat();
+			fingerRotate = in.readFloat();
+			splitWidth = in.readFloat();
+			splitHeight = in.readFloat();
+			splitColor = in.readInt();
+			splitProgressColor = in.readInt();
+			edgeWidth = in.readFloat();
+			edgeColor = in.readInt();
+			edgeMargin = in.readFloat();
+			rotate = in.readInt();
+			blockCount = in.readInt();
+			radius = in.readFloat();
+		}
+
+		public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
+			public SavedState createFromParcel(Parcel in) {
+				return new SavedState(in);
+			}
+
+			public SavedState[] newArray(int size) {
+				return new SavedState[size];
+			}
+		};
+
+		@Override
+		public String toString() {
+			return "SavedState{" + "border=" + border + ", degree=" + degree + ", fingerSrc=" + fingerSrc + ", fingerWidth=" + fingerWidth + ", fingerHeight="
+					+ fingerHeight + ", fingerMargin=" + fingerMargin + ", fingerRotate=" + fingerRotate + ", splitWidth=" + splitWidth + ", splitHeight=" +
+					splitHeight + ", splitColor=" + splitColor + ", splitProgressColor=" + splitProgressColor + ", edgeWidth=" + edgeWidth + ", edgeColor=" +
+					edgeColor + ", edgeMargin=" + edgeMargin + ", rotate=" + rotate + ", blockCount=" + blockCount + ", radius=" + radius + '}';
+		}
 	}
 }

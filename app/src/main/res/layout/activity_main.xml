@@ -9,6 +9,7 @@
     tools:context=".MainActivity">
 
     <com.github.black.arcprogressbar.ArcProgressBar
+        android:id="@+id/apb_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:indeterminate="false"
@@ -23,6 +24,8 @@
         app:arc_progress_bar_finger="@mipmap/triangle"
         app:arc_progress_bar_finger_margin="0dp"
         app:arc_progress_bar_finger_rotate="270"
+        app:arc_progress_bar_finger_height="12dp"
+        app:arc_progress_bar_finger_width="12dp"
         app:arc_progress_bar_rotate="-45"
         app:arc_progress_bar_split_height="4dp"
         app:arc_progress_bar_split_width="16dp"/>
